@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <title>Conversor de Monedas</title>
   </head>
   <body>
@@ -20,7 +22,10 @@
     </div>
     <button id="convertir">Convertir Moneda</button>
 <div id="resultadoConversion"></div>
-    <div id="grafico"></div>
+    <div class="grafica">
+      <canvas id="myChart"></canvas>
+
+    </div>
 
     <span id="errorSpan"></span>
     <script src="assets/js/index.js"></script>

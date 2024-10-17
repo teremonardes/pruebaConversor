@@ -20,16 +20,12 @@ async function getMonedas() {
 
     divMoneda.innerHTML = htmlMoneda;
 
-    // tomar input pesos
     const inputPesos = document.querySelector("#pesos");
-
-    // función botón
-
     const convertir = document.querySelector("#convertir");
     const selectMoneda = document.querySelector("#selectMonedaInput");
     const resultado = document.querySelector("#resultadoConversion");
 
-    convertir.addEventListener("click", () => {
+    convertir.addEventListener("click", async () => {
       const pesos = parseFloat(inputPesos.value);
       let monedaSeleccionada = selectMoneda.value;
 
@@ -47,11 +43,13 @@ async function getMonedas() {
         resultadoHtml = `<p>$${pesos} pesos son $${conversion.toFixed(
           2
         )} euros.</p>`;
+        await renderGrafica("euro");
       } else if (monedaSeleccionada === "uf") {
         conversion = pesos / data["uf"].valor;
         resultadoHtml = `<p> $${pesos} pesos son $${conversion.toFixed(
           2
         )} UF.</p>`;
+        await renderGrafica("uf");
       }
       resultado.innerHTML = resultadoHtml;
     });
@@ -61,3 +59,61 @@ async function getMonedas() {
   }
 }
 getMonedas();
+
+// java grafica
+
+async function getHistorial(moneda) {
+  const endpoint = `https://mindicador.cl/api/${moneda}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  return data.serie;
+}
+
+function filtrarUltimos10Dias(data) {
+  const hoy = new Date();
+  return data.filter((entry) => {
+    const fecha = new Date(entry.fecha);
+
+    return (hoy - fecha) / (1000 * 60 * 60 * 24) <= 10;
+  });
+}
+
+function prepararConfiguracionParaLaGrafica(data, moneda) {
+  // Creamos las variables necesarias para el objeto de configuración
+  const tipoDeGrafica = "line";
+  const labels = data.map((entry) =>
+    new Date(entry.fecha).toLocaleDateString()
+  ).reverse();
+  const valores = data.map((entry) => entry.valor).reverse();
+
+  const titulo = `Valor del ${moneda === "euro" ? "Euro" : "UF"}`;
+  const colorDeLinea = "red";
+
+  const config = {
+    type: tipoDeGrafica,
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: titulo,
+          backgroundColor: colorDeLinea,
+          data: valores,
+        },
+      ],
+    },
+  };
+  return config;
+}
+let chartInstance = null;
+
+async function renderGrafica(moneda) {
+  const historial = await getHistorial(moneda);
+  const ultimos10Dias = filtrarUltimos10Dias(historial);
+  const config = prepararConfiguracionParaLaGrafica(ultimos10Dias, moneda);
+  const chartDOM = document.getElementById("myChart");
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(chartDOM, config);
+}
