@@ -1,0 +1,19 @@
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.principal {
+    background-color: lightblue;
+    padding: 2rem ;
+    margin-left: 15rem;
+    margin-right: 15rem;
+}
+
+canvas {
+    width: 5rem;
+    height: 3rem;
+}
